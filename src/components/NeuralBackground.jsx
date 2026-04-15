@@ -45,6 +45,10 @@ export function NeuralBackground({ mode = 'network' }) {
     const camera = new THREE.PerspectiveCamera(55, 1, 0.01, 10)
     camera.position.z = 2.2
 
+    const css = getComputedStyle(document.documentElement)
+    const cCyan = (css.getPropertyValue('--np-accent2') || '#06B6D4').trim()
+    const cViolet = (css.getPropertyValue('--np-accent1') || '#7C3AED').trim()
+
     const rnd = seededRandom(141) // stable layout
     const positions = new Float32Array(config.count * 3)
     const velocities = new Float32Array(config.count * 3)
@@ -71,7 +75,7 @@ export function NeuralBackground({ mode = 'network' }) {
     geom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
     const ptsMat = new THREE.PointsMaterial({
-      color: new THREE.Color('#06B6D4'),
+      color: new THREE.Color(cCyan),
       size: 0.012,
       sizeAttenuation: true,
       transparent: true,
@@ -87,7 +91,7 @@ export function NeuralBackground({ mode = 'network' }) {
     lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3))
     lineGeom.setDrawRange(0, 0)
     const lineMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color('#7C3AED'),
+      color: new THREE.Color(cViolet),
       transparent: true,
       opacity: config.opacity * 0.55,
       depthWrite: false,

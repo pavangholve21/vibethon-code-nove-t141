@@ -1,6 +1,7 @@
 const KEYS = {
   users: 'np_users',
   currentUser: 'np_currentUser',
+  theme: 'np_theme',
 }
 
 function safeParse(json, fallback) {
@@ -33,6 +34,15 @@ export function clearCurrentUsername() {
   localStorage.removeItem(KEYS.currentUser)
 }
 
+export function loadTheme() {
+  const t = localStorage.getItem(KEYS.theme)
+  return t === 'light' ? 'light' : 'dark'
+}
+
+export function saveTheme(theme) {
+  localStorage.setItem(KEYS.theme, theme === 'light' ? 'light' : 'dark')
+}
+
 export function upsertUser(userPatch) {
   const users = loadUsers()
   const idx = users.findIndex((u) => u.username === userPatch.username)
@@ -51,6 +61,8 @@ export function upsertUser(userPatch) {
 
   const next = {
     username: userPatch.username,
+    email: userPatch.email ?? prev?.email ?? '',
+    passwordHash: userPatch.passwordHash ?? prev?.passwordHash ?? '',
     createdAt: prev?.createdAt ?? now,
     lastUpdated: now,
     progress: {

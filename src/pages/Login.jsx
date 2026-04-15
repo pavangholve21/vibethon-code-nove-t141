@@ -32,6 +32,9 @@ export function Login() {
 
   const [mode, setMode] = useState('login') // 'login' | 'signup'
   const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [message, setMessage] = useState('')
   const [shake, setShake] = useState(0)
 
@@ -42,7 +45,10 @@ export function Login() {
   function onSubmit(e) {
     e.preventDefault()
     setMessage('')
-    const res = mode === 'signup' ? signup(username) : login(username)
+    const res =
+      mode === 'signup'
+        ? signup(username, { email, password })
+        : login(username, { password })
     if (!res.ok) {
       setMessage(res.message || 'Something went wrong.')
       setShake((s) => s + 1)
@@ -50,6 +56,21 @@ export function Login() {
     }
     navigate(from, { replace: true })
   }
+
+  const strength = useMemo(() => {
+    const pw = password
+    if (!pw) return { label: '—', pct: 0 }
+    let score = 0
+    if (pw.length >= 6) score += 1
+    if (pw.length >= 10) score += 1
+    if (/[A-Z]/.test(pw)) score += 1
+    if (/[0-9]/.test(pw)) score += 1
+    if (/[^A-Za-z0-9]/.test(pw)) score += 1
+    const pct = Math.min(100, Math.round((score / 5) * 100))
+    const label =
+      pct >= 80 ? 'Strong' : pct >= 60 ? 'Good' : pct >= 40 ? 'Fair' : 'Weak'
+    return { label, pct }
+  }, [password])
 
   return (
     <div className="mx-auto grid min-h-full w-full max-w-6xl items-center px-4 py-10">
@@ -99,7 +120,7 @@ export function Login() {
               Pro — Hackathon Build
             </h1>
             <p className="mt-2 text-sm text-cosmos-text2">
-              Login or create a username. No passwords. No backend.
+              Register/login is local-only (no backend).
             </p>
           </div>
 
@@ -138,9 +159,53 @@ export function Login() {
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. vibecoder"
+                placeholder={mode === 'login' ? 'username or email' : 'e.g. vibecoder'}
                 className="w-full rounded-2xl border border-cosmos bg-black/30 px-4 py-3 text-cosmos-text placeholder:text-cosmos-text2/60 outline-none ring-cosmos-accent1/40 focus:ring-2"
               />
+            </div>
+
+            {mode === 'signup' ? (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-cosmos-text2">Email (optional)</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-2xl border border-cosmos bg-black/30 px-4 py-3 text-cosmos-text placeholder:text-cosmos-text2/60 outline-none ring-cosmos-accent2/30 focus:ring-2"
+                />
+              </div>
+            ) : null}
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="mb-2 block text-sm font-medium text-cosmos-text2">Password</label>
+                <button
+                  type="button"
+                  className="text-xs text-cosmos-text2 hover:text-cosmos-text"
+                  onClick={() => setShowPw((s) => !s)}
+                >
+                  {showPw ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPw ? 'text' : 'password'}
+                placeholder="6+ characters"
+                className="w-full rounded-2xl border border-cosmos bg-black/30 px-4 py-3 text-cosmos-text placeholder:text-cosmos-text2/60 outline-none ring-cosmos-accent3/30 focus:ring-2"
+              />
+              <div className="mt-2">
+                <div className="flex items-center justify-between text-xs text-cosmos-text2">
+                  <span>Strength: <span className="font-semibold text-cosmos-text">{strength.label}</span></span>
+                  <span>{strength.pct}%</span>
+                </div>
+                <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+                  <div
+                    className="h-2 rounded-full bg-gradient-to-r from-cosmos-accent1 to-cosmos-accent2"
+                    style={{ width: `${strength.pct}%` }}
+                  />
+                </div>
+              </div>
             </div>
 
             <AnimatePresence>

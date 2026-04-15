@@ -5,6 +5,7 @@ import { Icon } from './NavIcons.jsx'
 import { usePrefersReducedMotion } from './usePrefersReducedMotion.js'
 import { useAchievements } from './AchievementProvider.jsx'
 import { useEffect, useRef } from 'react'
+import { useTheme } from './ThemeProvider.jsx'
 
 function initials(name) {
   const parts = String(name || '')
@@ -84,6 +85,7 @@ export function AppLayout() {
   const location = useLocation()
   const reduced = usePrefersReducedMotion()
   const { enqueue } = useAchievements()
+  const { theme, toggleTheme } = useTheme()
 
   const prevBadgesRef = useRef([])
   useEffect(() => {
@@ -127,6 +129,14 @@ export function AppLayout() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="cosmos-ghost"
+              onClick={toggleTheme}
+              title="Toggle theme"
+            >
+              {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+            </button>
             <div className="hidden items-center gap-3 sm:flex">
               <div className="rounded-full border border-cosmos bg-white/5 px-3 py-1.5 text-xs text-cosmos-text2">
                 <span className="mr-1">🔥</span>
