@@ -14,8 +14,85 @@ import { clamp, round1 } from '../utils/scoring.js'
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePrefersReducedMotion } from '../components/usePrefersReducedMotion.js'
 import { useCountUp } from '../components/useCountUp.js'
+import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend)
+
+function NeuralTrainerViz({ active, intensity = 0.6 }) {
+  const group = useRef(null)
+  const nodes = useMemo(() => {
+    const pts = []
+    for (let l = 0; l < 4; l++) {
+      const count = 6 + l * 2
+      for (let i = 0; i < count; i++) {
+        pts.push({
+          x: (l - 1.5) * 1.15,
+          y: (i - (count - 1) / 2) * 0.28,
+          z: (Math.random() - 0.5) * 0.35,
+          p: Math.random() * Math.PI * 2,
+        })
+      }
+    }
+    return pts
+  }, [])
+
+  const linesGeom = useMemo(() => new THREE.BufferGeometry(), [])
+  const linesMat = useMemo(
+    () =>
+      new THREE.LineBasicMaterial({
+        color: new THREE.Color('#06B6D4'),
+        transparent: true,
+        opacity: 0.35,
+      }),
+    [],
+  )
+
+  const positions = useMemo(() => new Float32Array(nodes.length * 3), [nodes.length])
+  useMemo(() => {
+    for (let i = 0; i < nodes.length; i++) {
+      positions[i * 3 + 0] = nodes[i].x
+      positions[i * 3 + 1] = nodes[i].y
+      positions[i * 3 + 2] = nodes[i].z
+    }
+  }, [nodes, positions])
+
+  useEffect(() => {
+    linesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    return () => {
+      linesGeom.dispose()
+      linesMat.dispose()
+    }
+  }, [linesGeom, linesMat, positions])
+
+  useFrame((state) => {
+    if (!group.current) return
+    const t = state.clock.elapsedTime
+    group.current.rotation.y = t * 0.18
+    group.current.rotation.x = Math.sin(t * 0.35) * 0.12
+  })
+
+  return (
+    <group ref={group}>
+      {/* Nodes */}
+      {nodes.map((n, idx) => (
+        <mesh key={idx} position={[n.x, n.y, n.z]}>
+          <sphereGeometry args={[0.055, 16, 16]} />
+          <meshStandardMaterial
+            emissive={new THREE.Color(active ? '#7C3AED' : '#06B6D4')}
+            emissiveIntensity={active ? 1.2 * intensity : 0.35}
+            color={active ? '#0A0A0F' : '#0A0A0F'}
+            transparent
+            opacity={0.95}
+          />
+        </mesh>
+      ))}
+
+      {/* Simple connective lines (visual only) */}
+      <lineSegments geometry={linesGeom} material={linesMat} />
+    </group>
+  )
+}
 
 function fakeTrain({ learningRate, epochs }) {
   // Peak around lr ~ 0.2, epochs ~ 35; degrade when too high/low.
@@ -270,6 +347,28 @@ export function Game() {
               </motion.div>
             ) : null}
           </AnimatePresence>
+        </div>
+
+        {/* 3D training viz */}
+        <div className="cosmos-card overflow-hidden p-0">
+          <div className="flex items-center justify-between border-b border-cosmos bg-black/20 px-6 py-4">
+            <div>
+              <div className="font-heading text-lg font-semibold text-cosmos-text">Neural Activation</div>
+              <div className="text-sm text-cosmos-text2">A lightweight 3D “brain” that wakes up during training.</div>
+            </div>
+            <div className="rounded-full border border-cosmos bg-black/20 px-4 py-2 text-sm text-cosmos-text2">
+              {training ? '⚡ Active' : 'Idle'}
+            </div>
+          </div>
+          <div className="relative h-[260px]">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cosmos-accent1/10 to-cosmos-accent2/10" />
+            <Canvas camera={{ position: [0, 0, 4.2], fov: 50 }}>
+              <ambientLight intensity={0.8} />
+              <pointLight position={[4, 4, 4]} intensity={1.4} color="#7C3AED" />
+              <pointLight position={[-4, -2, 4]} intensity={1.0} color="#06B6D4" />
+              <NeuralTrainerViz active={training} intensity={0.7} />
+            </Canvas>
+          </div>
         </div>
 
         <div className="cosmos-card p-6">
