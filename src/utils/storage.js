@@ -56,6 +56,8 @@ export function upsertUser(userPatch) {
     progress: {
       modulesCompleted: [],
       quizScore: 0,
+      badges: [],
+      streak: 0,
       gameBestAccuracy: 0,
       ...prevProgress,
       ...userPatch.progress,

@@ -7,6 +7,7 @@ import {
   upsertUser,
 } from '../utils/storage.js'
 import { AuthContext } from './authContext.js'
+import { computeNewBadges, mergeBadges } from '../utils/achievements.js'
 
 function normalizeUsername(name) {
   return name.trim().replace(/\s+/g, ' ')
@@ -52,7 +53,21 @@ export function AuthProvider({ children }) {
 
     function updateProgress(progressPatch) {
       if (!user) return null
-      const next = upsertUser({ username: user.username, progress: progressPatch })
+      // Increment streak for meaningful activity (any progress write).
+      const prevStreak = Number(user?.progress?.streak ?? 0)
+      const nextStreak = prevStreak + 1
+      const combined = { ...progressPatch, streak: progressPatch.streak ?? nextStreak }
+
+      let next = upsertUser({ username: user.username, progress: combined })
+
+      // Achievements are derived; merge + persist without changing existing key names.
+      const unlockedNow = computeNewBadges(next)
+      if (unlockedNow.length) {
+        next = upsertUser({
+          username: user.username,
+          progress: { badges: mergeBadges(next.progress?.badges, unlockedNow) },
+        })
+      }
       setUser(next)
       return next
     }
