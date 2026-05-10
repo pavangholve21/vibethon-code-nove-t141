@@ -2,6 +2,10 @@
 
 An interactive AIML learning playground with a **“Neural Cosmos”** UI: drifting particle neurons + glassmorphism + animated modules.
 
+🌐 Live Demo
+
+NeuralPlayground Live Website
+
 ## What it does
 
 - **Auth (local-only)**: login/signup with `localStorage` (no backend)
