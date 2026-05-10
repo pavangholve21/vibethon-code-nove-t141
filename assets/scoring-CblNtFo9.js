@@ -1,0 +1,1 @@
+function e(e,t,n){return Math.max(t,Math.min(n,e))}function t(e){return Math.round(e*10)/10}function n(e,t){return t?e/t*100:0}function r(e){let t=Number(e?.progress?.quizScore??0),n=Number(e?.progress?.simulator?.accuracy??0);return Math.round(t+n)}export{t as i,e as n,r,n as t};
