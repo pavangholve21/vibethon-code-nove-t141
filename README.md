@@ -4,7 +4,7 @@ An interactive AIML learning playground with a **“Neural Cosmos”** UI: drift
 
 🌐 Live Demo
 
-NeuralPlayground Live Website
+NeuralPlayground Live Website: https://aiml-learning-platform.netlify.app/login
 
 ## What it does
 
