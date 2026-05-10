@@ -2,9 +2,9 @@
 
 An interactive AIML learning playground with a **“Neural Cosmos”** UI: drifting particle neurons + glassmorphism + animated modules.
 
-🌐 Live Demo
+## 🌐 Live Demo
 
-NeuralPlayground Live Website: https://aiml-learning-platform.netlify.app/login
+🔗 https://aiml-learning-platform.netlify.app/login
 
 ## What it does
 
@@ -39,4 +39,3 @@ npm run dev
 
 - No real ML training: **all ML behavior is simulated in JavaScript**
 - No backend: everything persists in `localStorage`
-
